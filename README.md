@@ -1,6 +1,6 @@
 # unitree-try
 
-宇树 A2/A2 Pro、G1、H1 的仿真、强化学习和真机数据工作区。
+面向多种机器人的仿真、强化学习、控制代码与真机数据工作区。仓库目前从宇树 A2/A2 Pro、G1、H1 起步，后续可以继续加入其他厂商的双足、人形、四足、机械臂及移动机器人。
 
 这个仓库只保存可复现的代码、配置、补丁、说明和数据清单。Isaac Sim、Python 虚拟环境、第三方源码、训练日志、检查点和视频二进制默认不进入普通 Git 历史。
 
@@ -16,6 +16,8 @@
 
 ```text
 unitree-try/
+├── AGENTS.md                   # 通用 AI Agent 维护规则
+├── CLAUDE.md                   # Claude 及兼容 Agent 维护规则
 ├── scripts/                    # 一键安装、激活和环境诊断
 ├── patches/isaaclab/           # 仓库维护的 Isaac Lab 任务补丁
 ├── docs/                       # 环境、算法和学习路线
@@ -36,6 +38,30 @@ unitree-try/
         ├── checkpoints/
         └── real_world_videos/
 ```
+
+所有非隐藏子目录都必须包含自己的 `README.md`，说明目录用途、允许存放的内容和主要入口。该约束同时写入了 `AGENTS.md` 与 `CLAUDE.md`，供后续 AI Agent 自动遵守。
+
+## 添加其他机器人
+
+新机型使用 `robots/<robot_id>/`，其中 `robot_id` 使用小写 snake_case，例如 `atlas`、`go2` 或 `franka_panda`。标准结构为：
+
+```text
+robots/<robot_id>/
+├── README.md
+├── code/
+│   └── README.md
+├── data/
+│   ├── README.md
+│   └── manifest.csv
+├── checkpoints/
+│   ├── README.md
+│   └── manifest.csv
+└── real_world_videos/
+    ├── README.md
+    └── manifest.csv
+```
+
+机型 README 必须写明厂商、型号、自由度、仿真后端、当前完成状态、可运行任务和真机安全限制。完整步骤见 [新增机器人指南](docs/adding-a-robot.md)。
 
 ## 一键配置
 
@@ -117,3 +143,4 @@ robots/a2_pro/code/run_mujoco.sh
 - [环境与复现说明](docs/environment.md)
 - [算法与框架学习路线](docs/learning-roadmap.md)
 - [数据和隐私规范](docs/data-governance.md)
+- [新增机器人指南](docs/adding-a-robot.md)
