@@ -1,0 +1,68 @@
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Python and native build products
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+build/
+dist/
+*.egg-info/
+
+# Local environments and third-party runtimes
+.venv/
+.local/
+.cache/
+third_party/
+unitree-runtime/
+
+# Training outputs and experiment services
+logs/
+runs/
+wandb/
+mlruns/
+*.tfevents.*
+videos/train/
+videos/play/
+
+# Secrets and machine-local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+credentials*
+secrets*
+
+# Large robot artifacts are opt-in. Keep documentation and manifests tracked.
+robots/*/data/**
+!robots/*/data/README.md
+!robots/*/data/manifest.csv
+robots/*/checkpoints/**
+!robots/*/checkpoints/README.md
+!robots/*/checkpoints/manifest.csv
+robots/*/real_world_videos/**
+!robots/*/real_world_videos/README.md
+!robots/*/real_world_videos/manifest.csv
+
+# Common large artifacts outside the curated robot directories
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.engine
+*.bag
+*.db3
+*.mcap
+*.mp4
+*.mov
+*.avi
+*.npz
+*.npy

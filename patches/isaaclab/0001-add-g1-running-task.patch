@@ -1,0 +1,145 @@
+From da324116a5982efe6a9fcaebf124b128d760e463 Mon Sep 17 00:00:00 2001
+From: A2 Environment Setup <a2-setup@local>
+Date: Thu, 3 Sep 2026 13:05:40 +0000
+Subject: [PATCH] Add high-speed G1 running task
+
+---
+ .../locomotion/velocity/config/g1/__init__.py | 22 +++++
+ .../velocity/config/g1/run_env_cfg.py         | 98 +++++++++++++++++++
+ 2 files changed, 120 insertions(+)
+ create mode 100644 source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/run_env_cfg.py
+
+diff --git a/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/__init__.py b/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/__init__.py
+index 30861ec5..4aeee712 100644
+--- a/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/__init__.py
++++ b/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/__init__.py
+@@ -57,3 +57,25 @@ gym.register(
+         "skrl_cfg_entry_point": f"{agents.__name__}:skrl_flat_ppo_cfg.yaml",
+     },
+ )
++
++
++gym.register(
++    id="Isaac-Velocity-Run-G1-v0",
++    entry_point="isaaclab.envs:ManagerBasedRLEnv",
++    disable_env_checker=True,
++    kwargs={
++        "env_cfg_entry_point": f"{__name__}.run_env_cfg:G1RunEnvCfg",
++        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:G1FlatPPORunnerCfg",
++    },
++)
++
++
++gym.register(
++    id="Isaac-Velocity-Run-G1-Play-v0",
++    entry_point="isaaclab.envs:ManagerBasedRLEnv",
++    disable_env_checker=True,
++    kwargs={
++        "env_cfg_entry_point": f"{__name__}.run_env_cfg:G1RunEnvCfg_PLAY",
++        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:G1FlatPPORunnerCfg",
++    },
++)
+diff --git a/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/run_env_cfg.py b/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/run_env_cfg.py
+new file mode 100644
+index 00000000..1e0d8957
+--- /dev/null
++++ b/source/isaaclab_tasks/isaaclab_tasks/manager_based/locomotion/velocity/config/g1/run_env_cfg.py
+@@ -0,0 +1,98 @@
++# Copyright (c) 2026
++# SPDX-License-Identifier: BSD-3-Clause
++
++"""High-speed G1 locomotion task initialized from a walking policy."""
++
++from __future__ import annotations
++
++import torch
++
++from isaaclab.managers import RewardTermCfg as RewTerm
++from isaaclab.managers import SceneEntityCfg
++from isaaclab.sensors import ContactSensor
++from isaaclab.utils import configclass
++
++import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
++
++from .flat_env_cfg import G1FlatEnvCfg
++from .rough_env_cfg import G1Rewards
++
++
++def running_flight_phase(
++    env,
++    command_name: str,
++    sensor_cfg: SceneEntityCfg,
++    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
++) -> torch.Tensor:
++    """Reward a controlled aerial phase while upright and tracking the command.
++
++    Gating flight by speed tracking and torso orientation prevents the policy from
++    collecting this reward by merely jumping vertically or falling over.
++    """
++
++    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
++    asset = env.scene[asset_cfg.name]
++    feet_air = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids] > 0.0
++    both_feet_airborne = torch.all(feet_air, dim=1)
++    speed_tracking = mdp.track_lin_vel_xy_yaw_frame_exp(env, std=0.5, command_name=command_name, asset_cfg=asset_cfg)
++    upright = torch.clamp(-asset.data.projected_gravity_b[:, 2], min=0.0, max=1.0)
++    return both_feet_airborne.float() * speed_tracking * upright
++
++
++@configclass
++class G1RunRewards(G1Rewards):
++    """Walking rewards plus a gated, true aerial-phase reward."""
++
++    running_flight_phase_reward = RewTerm(
++        func=running_flight_phase,
++        weight=0.6,
++        params={
++            "command_name": "base_velocity",
++            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
++        },
++    )
++
++
++@configclass
++class G1RunEnvCfg(G1FlatEnvCfg):
++    """Train G1 for controlled running at 1.0--2.5 m/s."""
++
++    rewards: G1RunRewards = G1RunRewards()
++
++    def __post_init__(self):
++        super().__post_init__()
++
++        # High-speed forward commands with mild steering disturbances.
++        self.commands.base_velocity.ranges.lin_vel_x = (1.0, 2.5)
++        self.commands.base_velocity.ranges.lin_vel_y = (-0.15, 0.15)
++        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
++        self.commands.base_velocity.rel_standing_envs = 0.0
++        self.commands.base_velocity.resampling_time_range = (5.0, 8.0)
++
++        # Prioritize speed tracking and allow an aerial running phase, while
++        # retaining the original fall, slip, joint-limit, and posture penalties.
++        self.rewards.track_lin_vel_xy_exp.weight = 2.0
++        self.rewards.feet_air_time.func = mdp.feet_air_time
++        self.rewards.feet_air_time.weight = 1.0
++        self.rewards.feet_air_time.params["threshold"] = 0.18
++        self.rewards.feet_slide.weight = -0.2
++        self.rewards.flat_orientation_l2.weight = -0.75
++        self.rewards.action_rate_l2.weight = -0.003
++        self.rewards.dof_torques_l2.weight = -1.0e-6
++
++
++@configclass
++class G1RunEnvCfg_PLAY(G1RunEnvCfg):
++    """Deterministic configuration used to inspect a trained running policy."""
++
++    def __post_init__(self):
++        super().__post_init__()
++        self.scene.num_envs = 50
++        self.episode_length_s = 40.0
++        self.commands.base_velocity.ranges.lin_vel_x = (2.0, 2.0)
++        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
++        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
++        self.commands.base_velocity.ranges.heading = (0.0, 0.0)
++        self.observations.policy.enable_corruption = False
++        self.events.base_external_force_torque = None
++        self.events.push_robot = None
