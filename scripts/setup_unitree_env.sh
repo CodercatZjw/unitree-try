@@ -69,7 +69,9 @@ apt-get install -y --no-install-recommends \
   libglfw3-dev libgl1 libglu1-mesa libegl1 libx11-6 libxext6 libxi6 libxrandr2 \
   libxinerama1 libxcursor1 libxkbcommon0 libsm6 libice6 libxt6 libvulkan1 \
   vulkan-tools ffmpeg
-git lfs install --system
+# Configure the system-wide LFS filters without touching an image-provided
+# repository hook. This keeps the installer idempotent on hosted GPU images.
+git lfs install --system --skip-repo
 
 echo "[2/11] Installing uv and Python 3.11"
 if ! command -v uv >/dev/null 2>&1; then
