@@ -18,6 +18,8 @@
 unitree-try/
 ├── AGENTS.md                   # 通用 AI Agent 维护规则
 ├── CLAUDE.md                   # Claude 及兼容 Agent 维护规则
+├── autodl-environment.md       # AutoDL 实测部署、运行和持久化说明
+├── 一键配置.sh                 # AutoDL 国内网络优化的一键安装脚本
 ├── scripts/                    # 一键安装、激活和环境诊断
 ├── patches/isaaclab/           # 仓库维护的 Isaac Lab 任务补丁
 ├── docs/                       # 环境、算法和学习路线
@@ -94,6 +96,16 @@ source /workspace/unitree-runtime/activate.sh
 UNITREE_ROOT=/workspace/unitree-runtime ./scripts/doctor.sh
 ```
 
+### AutoDL 国内实例
+
+在 AutoDL 上复现实测环境时，可使用仓库根目录的国内网络优化脚本：
+
+```bash
+NETWORK_MODE=cn bash ./一键配置.sh
+```
+
+它默认把约 25 GB 的运行环境安装到高速数据盘 `/root/autodl-tmp/a2-pro`，并把训练日志、检查点和脚本备份写入 `/root/autodl-fs/a2-data`。完整的网络模式、目录持久化、训练命令、故障处理和已验证版本见 [AutoDL 环境配置说明](autodl-environment.md)。
+
 ## 开始训练
 
 G1 平地行走：
@@ -140,6 +152,7 @@ robots/a2_pro/code/run_mujoco.sh
 
 ## 文档
 
+- [AutoDL 环境配置说明](autodl-environment.md)
 - [环境与复现说明](docs/environment.md)
 - [算法与框架学习路线](docs/learning-roadmap.md)
 - [数据和隐私规范](docs/data-governance.md)
