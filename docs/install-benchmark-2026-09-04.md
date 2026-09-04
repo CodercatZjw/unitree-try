@@ -70,5 +70,8 @@ A future Docker benchmark should use the same host class and measure from the st
 - Unitree incremental build after the base pull: 8 minutes 45 seconds
 - Cached rebuild after an entry-script change: about 6 seconds
 - Container GPU plus A2/Isaac Lab smoke test: about 17 seconds
+- First GHCR upload: 2 hours 14 minutes 29 seconds on a connection observed around 4.8–12 Mbps
+- Published manifest: `sha256:b35c866c385ab918c5b5ee8a88615d717a259e23a11e5227d3d2daf3a9c8b104`
+- Published package visibility: private
 
-The first NGC pull experienced a network retry, so it is not used as a clean pull-time benchmark. A new-host comparison must still measure the image pull separately. Docker materially reduces dependency resolution and compilation time, while its total cold-start advantage depends on registry throughput and whether the cloud provider already caches the base layers.
+The first NGC pull experienced a network retry, so it is not used as a clean pull-time benchmark. The initial GHCR push had to transfer the NGC base layers to a different registry and was limited by local upstream bandwidth; later code-only image updates can reuse those layers. A new-host comparison must still measure the image pull separately. Docker materially reduces dependency resolution and compilation time, while its total cold-start advantage depends on registry throughput and whether the cloud provider already caches the base layers.

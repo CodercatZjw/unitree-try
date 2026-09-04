@@ -40,6 +40,17 @@ Do not add the copied checkpoints, logs, or videos to normal Git history. Store 
 
 ## Publish a private image
 
+The validated private package is:
+
+```text
+ghcr.io/codercatzjw/unitree-try:isaaclab-2.3.2
+ghcr.io/codercatzjw/unitree-try@sha256:b35c866c385ab918c5b5ee8a88615d717a259e23a11e5227d3d2daf3a9c8b104
+```
+
+Use the tag for normal deployment and the digest form when an immutable environment is required. Authentication needs `read:packages` to pull the private image.
+
+To publish a replacement image:
+
 ```bash
 docker login ghcr.io
 docker buildx build --platform linux/amd64 \
