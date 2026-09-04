@@ -38,16 +38,18 @@ docker compose -f docker/compose.yaml cp unitree:/workspace/unitree-artifacts/. 
 
 Do not add the copied checkpoints, logs, or videos to normal Git history. Store them in private object storage or an encrypted backup and update the appropriate manifest when a curated artifact is published.
 
-## Publish a private image
+## Published images
 
-The validated private package is:
+The validated image is published to both registries with the same immutable manifest:
 
 ```text
+docker.io/zjwharry/unitree-try:isaaclab-2.3.2
+docker.io/zjwharry/unitree-try@sha256:b35c866c385ab918c5b5ee8a88615d717a259e23a11e5227d3d2daf3a9c8b104
 ghcr.io/codercatzjw/unitree-try:isaaclab-2.3.2
 ghcr.io/codercatzjw/unitree-try@sha256:b35c866c385ab918c5b5ee8a88615d717a259e23a11e5227d3d2daf3a9c8b104
 ```
 
-Use the tag for normal deployment and the digest form when an immutable environment is required. Authentication needs `read:packages` to pull the private image.
+The Docker Hub mirror is public and is the simplest choice for cloud hosts. The GHCR package remains private and requires `read:packages` authentication. Use a tag for normal deployment and a digest when an immutable environment is required.
 
 To publish a replacement image:
 
@@ -59,7 +61,7 @@ docker buildx build --platform linux/amd64 \
   --push .
 ```
 
-Keep the package private. Never put registry credentials in this repository or in the image. On Vast.ai, select the published image when creating the instance and supply private registry credentials through the provider UI. Do not attempt Docker-in-Docker inside a normal Vast container.
+Never put registry credentials in this repository or in the image. On Vast.ai, select `docker.io/zjwharry/unitree-try:isaaclab-2.3.2` to avoid private-registry authentication, or use the private GHCR package and supply credentials through the provider UI. Do not attempt Docker-in-Docker inside a normal Vast container.
 
 For continued training, attach a persistent volume at `/workspace/unitree-artifacts`. Allocate at least 50 GB for the image/runtime and preferably 80 GB or more when retaining training videos and checkpoints.
 
