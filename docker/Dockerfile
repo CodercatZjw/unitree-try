@@ -46,7 +46,8 @@ RUN mkdir -p "${UNITREE_ROOT}/third_party" "${UNITREE_ROOT}/.local" "${UNITREE_R
     clone_at_ref https://github.com/unitreerobotics/unitree_mujoco.git "${UNITREE_MUJOCO_PATH}" "${UNITREE_MUJOCO_REF}"
 
 COPY patches/isaaclab/0001-add-g1-running-task.patch /tmp/0001-add-g1-running-task.patch
-RUN if git -C "${ISAACLAB_PATH}" apply --reverse --check /tmp/0001-add-g1-running-task.patch >/dev/null 2>&1; then \
+RUN sed -i 's/\r$//' /tmp/0001-add-g1-running-task.patch && \
+    if git -C "${ISAACLAB_PATH}" apply --reverse --check /tmp/0001-add-g1-running-task.patch >/dev/null 2>&1; then \
       echo "G1 running task patch is already present"; \
     else \
       git -C "${ISAACLAB_PATH}" apply --check /tmp/0001-add-g1-running-task.patch; \
