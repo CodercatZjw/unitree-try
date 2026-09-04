@@ -61,3 +61,14 @@ unitree_mujoco=4134cb5dc7ff1ba7f484deda48b5274b58694519
 
 A future Docker benchmark should use the same host class and measure from the start of the image pull through the first successful A2 MuJoCo and Isaac Lab headless smoke tests. Image pull time and first-run shader/cache warm-up should be reported separately.
 
+### Initial Docker implementation
+
+- Official base image: `nvcr.io/nvidia/isaac-lab:2.3.2`
+- Pinned base digest: `sha256:388dbc806f48359a964cb9f807feb226da95d0a107f470fdcad9780ea10fe6f2`
+- Official base expanded size: approximately 17.55 GB
+- Final Unitree image expanded size: approximately 20.54 GB
+- Unitree incremental build after the base pull: 8 minutes 45 seconds
+- Cached rebuild after an entry-script change: about 6 seconds
+- Container GPU plus A2/Isaac Lab smoke test: about 17 seconds
+
+The first NGC pull experienced a network retry, so it is not used as a clean pull-time benchmark. A new-host comparison must still measure the image pull separately. Docker materially reduces dependency resolution and compilation time, while its total cold-start advantage depends on registry throughput and whether the cloud provider already caches the base layers.

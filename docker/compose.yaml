@@ -1,0 +1,60 @@
+name: unitree-try
+
+services:
+  unitree:
+    image: ${UNITREE_IMAGE:-ghcr.io/codercatzjw/unitree-try:isaaclab-2.3.2}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      platforms:
+        - linux/amd64
+    gpus: all
+    network_mode: host
+    ipc: host
+    environment:
+      ACCEPT_EULA: "Y"
+      OMNI_KIT_ACCEPT_EULA: "YES"
+    volumes:
+      - type: bind
+        source: ..
+        target: /workspace/unitree-try
+      - type: volume
+        source: unitree-artifacts
+        target: /workspace/unitree-artifacts
+      - type: volume
+        source: isaac-cache-kit
+        target: /isaac-sim/kit/cache
+      - type: volume
+        source: isaac-cache-ov
+        target: /root/.cache/ov
+      - type: volume
+        source: isaac-cache-pip
+        target: /root/.cache/pip
+      - type: volume
+        source: isaac-cache-gl
+        target: /root/.cache/nvidia/GLCache
+      - type: volume
+        source: isaac-cache-compute
+        target: /root/.nv/ComputeCache
+      - type: volume
+        source: isaac-logs
+        target: /root/.nvidia-omniverse/logs
+    stdin_open: true
+    tty: true
+    command: ["sleep", "infinity"]
+
+volumes:
+  unitree-artifacts:
+    name: unitree-artifacts
+  isaac-cache-kit:
+    name: unitree-isaac-cache-kit
+  isaac-cache-ov:
+    name: unitree-isaac-cache-ov
+  isaac-cache-pip:
+    name: unitree-isaac-cache-pip
+  isaac-cache-gl:
+    name: unitree-isaac-cache-gl
+  isaac-cache-compute:
+    name: unitree-isaac-cache-compute
+  isaac-logs:
+    name: unitree-isaac-logs
