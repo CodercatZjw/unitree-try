@@ -53,8 +53,8 @@ AutoDL 的“保存镜像”只保存系统盘。`/root/autodl-tmp` 是数据盘
 ```bash
 git clone https://github.com/CodercatZjw/unitree-try.git
 cd unitree-try
-chmod +x ./一键配置.sh
-NETWORK_MODE=cn bash ./一键配置.sh
+chmod +x ./autodl-一键配置.sh
+NETWORK_MODE=cn bash ./autodl-一键配置.sh
 ```
 
 脚本需要 root 权限，支持重复执行和断点续装。大文件下载或 SSH 中断后，直接重新执行同一条命令即可。
@@ -73,7 +73,7 @@ cat ./VERSIONS.lock
 A2_ROOT=/root/autodl-tmp/a2-pro \
 PERSIST_ROOT=/root/autodl-fs/a2-data \
 NETWORK_MODE=cn \
-bash ./一键配置.sh
+bash ./autodl-一键配置.sh
 ```
 
 ## 4. 网络模式
@@ -83,7 +83,7 @@ bash ./一键配置.sh
 ### 国内模式（默认）
 
 ```bash
-NETWORK_MODE=cn bash ./一键配置.sh
+NETWORK_MODE=cn bash ./autodl-一键配置.sh
 ```
 
 使用：
@@ -103,7 +103,7 @@ NETWORK_MODE=cn bash ./一键配置.sh
 ```bash
 NETWORK_MODE=proxy \
 CLASH_PROXY=http://127.0.0.1:7890 \
-bash ./一键配置.sh
+bash ./autodl-一键配置.sh
 ```
 
 该模式使用官方 PyPI、NVIDIA PyPI、PyTorch 和 GitHub。脚本仍会在 APT 阶段关闭代理，完成国内 APT 操作后才启用代理。不要把 Clash 订阅或节点凭据提交到本仓库。
