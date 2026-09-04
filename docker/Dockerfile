@@ -83,7 +83,7 @@ RUN chmod +x \
       "${UNITREE_ROOT}/activate.sh" \
       "${UNITREE_ROOT}/bin/python" \
       "${UNITREE_ROOT}/bin/entrypoint" \
-      /workspace/unitree-try/docker/smoke.sh \
+      /workspace/unitree-try/docker/*.sh \
       /workspace/unitree-try/scripts/*.sh \
       /workspace/unitree-try/robots/*/code/*.sh && \
     mkdir -p /workspace/unitree-artifacts/isaaclab-logs \

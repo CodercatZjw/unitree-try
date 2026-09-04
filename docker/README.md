@@ -52,6 +52,14 @@ Keep the package private. Never put registry credentials in this repository or i
 
 For continued training, attach a persistent volume at `/workspace/unitree-artifacts`. Allocate at least 50 GB for the image/runtime and preferably 80 GB or more when retaining training videos and checkpoints.
 
+Use Vast's **SSH** or **Jupyter + SSH** launch mode. Vast replaces an image's entrypoint in those modes, so set this exact on-start command in the template:
+
+```bash
+bash /workspace/unitree-try/docker/vast-onstart.sh
+```
+
+Also set `ACCEPT_EULA=Y` and `OMNI_KIT_ACCEPT_EULA=YES` in the template environment. After connecting, run `bash /workspace/unitree-try/docker/smoke.sh`. The on-start script creates the writable artifact directories and activates the Unitree environment for later login shells; it does not start training automatically.
+
 ## Files
 
 - `Dockerfile`: reproducible image build.
@@ -60,5 +68,6 @@ For continued training, attach a persistent volume at `/workspace/unitree-artifa
 - `activate.sh`: container-specific Unitree environment activation.
 - `python-wrapper.sh`: routes `python` through Isaac Lab's interpreter.
 - `smoke.sh`: A2 MuJoCo and Isaac Lab CUDA/Vulkan validation.
+- `vast-onstart.sh`: restores activation and artifact directories when Vast replaces the image entrypoint.
 
 Only Docker definitions, small entry scripts, and their documentation belong in this directory. Do not store registry credentials, `.env` files, image archives, caches, logs, checkpoints, datasets, or videos here. YAML, Dockerfile, Markdown, and POSIX shell are the expected formats. This directory currently has no child directories; create a documented child directory only when several related Docker assets genuinely need one.
